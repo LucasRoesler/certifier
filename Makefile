@@ -35,3 +35,7 @@ test-swarm: clean-swarm
 
 test-kubernetes: clean-kubernetes
 	time go test -count=1 ./tests -v -gateway=${OPENFAAS_URL} ${.FEATURE_FLAGS} ${.TEST_FLAGS}
+
+
+build:
+	docker build  --cache-from openfaas/certifier:latest  -t openfaas/certifier:latest .
