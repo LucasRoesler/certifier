@@ -61,10 +61,10 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
       -
         name: Copy binaries to host
-        run: ./build_redist.sh ${{ steps.get_tag.outputs.TAG }}
+        run: ./ci/copy_redist.sh ${{ steps.get_tag.outputs.TAG }}
       -
         name: Create SHA of binaries
-        run: cd bin && ../ci/hashgen.sh
+        run: ./ci/hashgen.sh
       -
         name: Upload binaries and their SHA to Github Release
         uses: alexellis/upload-assets@0.2.2
