@@ -13,9 +13,6 @@ jobs:
         uses: actions/checkout@master
         with:
           fetch-depth: 1
-      - name: Get the tag
-        id: get_tag
-        run: echo ::set-output name=tag::${GITHUB_REF#refs/tags/}
       -
         name: Docker meta
         id: meta
@@ -61,10 +58,10 @@ jobs:
             GIT_COMMIT=${{ github.sha }}
           load: true
           push: false
-          tags: ${{ steps.meta.outputs.tags }}
+          tags: ghcr.io/openfaas/certifier:latest
       -
         name: Copy binaries to host
-        run: ./ci/copy_redist.sh ${{ steps.get_tag.outputs.tag }}
+        run: ./ci/copy_redist.sh
       -
         name: Create SHA of binaries
         run: ./ci/hashgen.sh
