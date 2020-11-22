@@ -18,7 +18,7 @@ jobs:
         id: meta
         uses: crazy-max/ghaction-docker-meta@v1
         with:
-          images: ghcr.io/name/app
+          images: "ghcr.io/${{ github.repository }}"
       -
         name: Set up QEMU
         uses: docker/setup-qemu-action@v1
