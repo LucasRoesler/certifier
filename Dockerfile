@@ -1,26 +1,46 @@
 ARG goversion=1.14
 ARG alpineversion=3.11
-FROM golang:$goversion as builder
 
+FROM teamserverless/license-check:0.3.9 as license-check
+
+FROM --platform=${BUILDPLATFORM:-linux/amd64} golang:$goversion as builder
+
+ARG TARGETPLATFORM
+ARG BUILDPLATFORM
+ARG TARGETOS
+ARG TARGETARCH
+ARG GIT_COMMIT="000000"
+ARG VERSION="dev"
+
+ENV CGO_ENABLED=0
+ENV GO111MODULE=on
+ENV GOFLAGS=-mod=vendor
+
+COPY --from=license-check /license-check /usr/bin/
 
 WORKDIR /app
-
 COPY go.mod .
 COPY go.sum .
-
-RUN go mod download
-
-ENV GO111MODULE=on
-ENV CGO_ENABLED=0
-ARG GOOS=linux
-
-WORKDIR /app
 COPY tests ./tests
+COPY version ./version
 COPY vendor ./vendor
 
-RUN go test -c -o certifier ./tests
+RUN license-check -path /app --verbose=false "Alex Ellis" "OpenFaaS Author(s)"
+RUN gofmt -l -d $(find . -type f -name '*.go' -not -path "./vendor/*")
+RUN CGO_ENABLED=${CGO_ENABLED} GOOS=${TARGETOS} GOARCH=${TARGETARCH} \
+    go test -c -o certifier \
+    -ldflags "\
+    -X github.com/openfaas/certifier/version.Commit=$GIT_COMMIT \
+    -X github.com/openfaas/certifier/version.Version=$VERSION" \
+    ./tests
 
-FROM alpine:$alpineversion
+FROM --platform=${TARGETPLATFORM:-linux/amd64} alpine:$alpineversion as ship
+LABEL org.label-schema.license="MIT" \
+    org.label-schema.vcs-url="https://github.com/openfaas/certifier" \
+    org.label-schema.vcs-type="Git" \
+    org.label-schema.name="openfaas/certifier" \
+    org.label-schema.vendor="openfaas" \
+    org.label-schema.docker.schema-version="1.0"
 
 RUN apk --no-cache --update add ca-certificates
 
