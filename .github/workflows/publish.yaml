@@ -14,11 +14,15 @@ jobs:
         with:
           fetch-depth: 1
       -
+        name: Generate image name
+        id: image
+        run: echo ::set-output name=name::"echo "ghcr.io/$GITHUB_REPOSITORY" | awk '{print tolower($1)}'"
+      -
         name: Docker meta
         id: meta
         uses: crazy-max/ghaction-docker-meta@v1
         with:
-          images: ghcr.io/name/app
+          images: ${{ steps.image.outputs.name }}
       -
         name: Set up QEMU
         uses: docker/setup-qemu-action@v1
