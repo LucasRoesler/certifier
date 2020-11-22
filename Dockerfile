@@ -34,7 +34,7 @@ RUN CGO_ENABLED=${CGO_ENABLED} GOOS=${TARGETOS} GOARCH=${TARGETARCH} \
     -X github.com/openfaas/certifier/version.Version=$VERSION" \
     ./tests
 
-FROM --platform=${TARGETPLATFORM:-linux/amd64} alpine:$alpineversion as ship
+FROM --platform=${TARGETPLATFORM:-linux/amd64} alpine:$alpineversion as release
 LABEL org.label-schema.license="MIT" \
     org.label-schema.vcs-url="https://github.com/openfaas/certifier" \
     org.label-schema.vcs-type="Git" \
